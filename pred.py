@@ -68,8 +68,8 @@ keep_prob_pl = tf.placeholder(tf.float32)
 batch_size = tf.shape(features_pl)[0]
 
 # Define multi-layer perceptron
-hidden_layer = tf.nn.dropout(tf.nn.relu(tf.contrib.layers.linear(features_pl, hidden_size)), keep_prob=keep_prob_pl)
-logits_flat = tf.nn.dropout(tf.contrib.layers.linear(hidden_layer, target_size), keep_prob=keep_prob_pl)
+hidden_layer = tf.nn.dropout(tf.nn.relu(tf.contrib.layers.linear(features_pl, hidden_size)), rate= 1 - keep_prob_pl)
+logits_flat = tf.nn.dropout(tf.contrib.layers.linear(hidden_layer, target_size), rate= 1 - keep_prob_pl)
 logits = tf.reshape(logits_flat, [batch_size, target_size])
 
 # Define L2 loss
@@ -77,7 +77,7 @@ tf_vars = tf.trainable_variables()
 l2_loss = tf.add_n([tf.nn.l2_loss(v) for v in tf_vars if 'bias' not in v.name]) * l2_alpha
 
 # Define overall loss
-loss = tf.reduce_sum(tf.nn.sparse_softmax_cross_entropy_with_logits(logits, stances_pl) + l2_loss)
+loss = tf.reduce_sum(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=stances_pl) + l2_loss)
 
 # Define prediction
 softmaxed_logits = tf.nn.softmax(logits)
